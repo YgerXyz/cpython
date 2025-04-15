@@ -39,3 +39,29 @@ jobs:
     - name: Build CPython installer
       # run: .\Tools\msi\build.bat --doc -x64
       run: .\Tools\msi\buildrelease.bat -x64 -D
+    # 这是添加的内容
+    - name: Zip amd64 folder
+      shell: pwsh # 使用PowerShell打包
+      run: |
+        Compress-Archive -Path . -DestinationPath python-msi.zip
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1 # 使用官方Action创建发布
+      env:
+        GITHUB_TOKEN: ${{ secrets.MY_TOKEN }} # 主仓库token
+      with:
+        tag_name: Python_msi # 使用提取的标签名称
+        release_name: Python_msi # 发布名称
+        draft: false # 非草稿模式
+        prerelease: false # 非预发布
+
+    - name: Upload ZIP Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: python-msi.zip
+        asset_name: python-msi.zip
+        asset_content_type: application/zip # ZIP文件类型
