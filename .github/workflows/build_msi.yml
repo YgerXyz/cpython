@@ -30,13 +30,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build_win32:
-    name: 'Windows (x86) Installer'
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build CPython installer
-      run: .\Tools\msi\build.bat --doc -x86
 
   build_win_amd64:
     name: 'Windows (x64) Installer'
