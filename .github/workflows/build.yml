@@ -626,14 +626,14 @@ jobs:
     - check-autoconf-regen
     - check-generated-files
     - build-windows
-#    - build-windows-msi
-#    - build-macos
-#    - build-ubuntu
-#    - build-ubuntu-ssltests
-#    - build-wasi
+    - build-windows-msi
+    - build-macos
+    - build-ubuntu
+    - build-ubuntu-ssltests
+    - build-wasi
     - test-hypothesis
-#    - build-asan
-#    - build-tsan
+    - build-asan
+    - build-tsan
     - cross-build-linux
     - cifuzz
     if: always()
