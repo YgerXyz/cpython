@@ -75,9 +75,9 @@ jobs:
 #      run: .\PCbuild\rt.bat -p x64 -q -uall -u-cpu -rwW --slowest --timeout=1200 -j0
       # 这是添加的内容
     - name: Zip amd64 folder
+      shell: pwsh # 使用PowerShell打包
       run: |
         Compress-Archive -Path .\PCbuild\amd64\* -DestinationPath python-amd64.zip
-        shell: powershell
 
     - name: Create Release
       id: create_release
