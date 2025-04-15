@@ -22,6 +22,39 @@ env:
   FORCE_COLOR: 1
 
 jobs:
+  check_source:
+    name: 'Check for source changes'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      run_tests: ${{ steps.check.outputs.run_tests }}
+      run_ssl_tests: ${{ steps.check.outputs.run_ssl_tests }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for source changes
+        id: check
+        run: |
+          if [ -z "$GITHUB_BASE_REF" ]; then
+            echo "run_tests=true" >> $GITHUB_OUTPUT
+            echo "run_ssl_tests=true" >> $GITHUB_OUTPUT
+          else
+            git fetch origin $GITHUB_BASE_REF --depth=1
+            # git diff "origin/$GITHUB_BASE_REF..." (3 dots) may be more
+            # reliable than git diff "origin/$GITHUB_BASE_REF.." (2 dots),
+            # but it requires to download more commits (this job uses
+            # "git fetch --depth=1").
+            #
+            # git diff "origin/$GITHUB_BASE_REF..." (3 dots) works with Git
+            # 2.26, but Git 2.28 is stricter and fails with "no merge base".
+            #
+            # git diff "origin/$GITHUB_BASE_REF.." (2 dots) should be enough on
+            # GitHub, since GitHub starts by merging origin/$GITHUB_BASE_REF
+            # into the PR branch anyway.
+            #
+            # https://github.com/python/core-workflow/issues/373
+            git diff --name-only origin/$GITHUB_BASE_REF.. | grep -qvE '(\.rst$|^Doc|^Misc)' && echo "run_tests=true" >> $GITHUB_OUTPUT || true
+            git diff --name-only origin/$GITHUB_BASE_REF.. | grep -qE '(ssl|hashlib|hmac|^.github)' && echo "run_ssl_tests=true" >> $GITHUB_OUTPUT || true
+          fi
 
   build_win_amd64:
     name: 'Windows (x64)'
@@ -42,9 +75,9 @@ jobs:
 #      run: .\PCbuild\rt.bat -p x64 -q -uall -u-cpu -rwW --slowest --timeout=1200 -j0
       # 这是添加的内容
     - name: Zip amd64 folder
-      shell: pwsh # 使用PowerShell打包
       run: |
         Compress-Archive -Path .\PCbuild\amd64\* -DestinationPath python-amd64.zip
+        shell: powershell
 
     - name: Create Release
       id: create_release
