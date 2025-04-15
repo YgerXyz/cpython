@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 'main'
-      - '3.*'
+    - 'main'
+    - '3.*'
   pull_request:
     branches:
-      - 'main'
-      - '3.*'
+    - 'main'
+    - '3.*'
 
 permissions:
   contents: read
@@ -22,47 +22,47 @@ env:
   FORCE_COLOR: 1
 
 jobs:
+
   build_win_amd64:
     name: 'Windows (x64)'
     runs-on: windows-latest
     needs: check_source
     if: needs.check_source.outputs.run_tests == 'true'
     env:
-      IncludeUwp: 'true'
+       IncludeUwp: 'true'
     steps:
-      - uses: actions/checkout@v4
-      - name: Register MSVC problem matcher
-        run: echo "::add-matcher::.github/problem-matchers/msvc.json"
-      - name: Build CPython
-        run: .\PCbuild\build.bat -e -p x64
-      - name: Display build info
-        run: .\python.bat -m test.pythoninfo
-#      - name: Tests
-#        run: .\PCbuild\rt.bat -p x64 -q -uall -u-cpu -rwW --slowest --timeout=1200 -j0
-        # 这是添加的内容
-      - name: Zip amd64 folder
-        shell: pwsh
-        run: |
-          Compress-Archive -Path .\PCbuild\amd64\* -DestinationPath python-amd64.zip
-          echo "ZIP package created"
+    - uses: actions/checkout@v4
+    - name: Register MSVC problem matcher
+      run: echo "::add-matcher::.github/problem-matchers/msvc.json"
+    - name: Build CPython
+      run: .\PCbuild\build.bat -e -p x64
+    - name: Display build info
+      run: .\python.bat -m test.pythoninfo
+#    - name: Tests
+#      run: .\PCbuild\rt.bat -p x64 -q -uall -u-cpu -rwW --slowest --timeout=1200 -j0
+      # 这是添加的内容
+    - name: Zip amd64 folder
+      shell: pwsh # 使用PowerShell打包
+      run: |
+        Compress-Archive -Path .\PCbuild\amd64\* -DestinationPath python-amd64.zip
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1 # 使用官方Action创建发布
-        env:
-          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }} # 主仓库token
-        with:
-          tag_name: Python_build # 使用提取的标签名称
-          release_name: Python_build # 发布名称
-          draft: false # 非草稿模式
-          prerelease: false # 非预发布
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1 # 使用官方Action创建发布
+      env:
+        GITHUB_TOKEN: ${{ secrets.MY_TOKEN }} # 主仓库token
+      with:
+        tag_name: Python_build # 使用提取的标签名称
+        release_name: Python_build # 发布名称
+        draft: false # 非草稿模式
+        prerelease: false # 非预发布
 
-      - name: Upload ZIP Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: python-amd64.zip
-          asset_name: python-amd64.zip
-          asset_content_type: application/zip # ZIP文件类型
+    - name: Upload ZIP Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: python-amd64.zip
+        asset_name: python-amd64.zip
+        asset_content_type: application/zip # ZIP文件类型
