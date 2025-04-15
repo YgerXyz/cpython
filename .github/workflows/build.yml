@@ -68,7 +68,7 @@ jobs:
     - name: Register MSVC problem matcher
       run: echo "::add-matcher::.github/problem-matchers/msvc.json"
     - name: Build CPython
-      run: .\PCbuild\build.bat x64
+      run: .\PCbuild\build.bat -p x64
     - name: Display build info
       run: .\python.bat -m test.pythoninfo
 #    - name: Tests
