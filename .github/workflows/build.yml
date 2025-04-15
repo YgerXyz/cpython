@@ -622,20 +622,20 @@ jobs:
     timeout-minutes: 5
     needs:
     - build-context  # Transitive dependency, needed to access `run-tests` value
-#    - check-docs
-#    - check-autoconf-regen
-#    - check-generated-files
+    - check-docs
+    - check-autoconf-regen
+    - check-generated-files
     - build-windows
 #    - build-windows-msi
 #    - build-macos
 #    - build-ubuntu
 #    - build-ubuntu-ssltests
 #    - build-wasi
-#    - test-hypothesis
+    - test-hypothesis
 #    - build-asan
 #    - build-tsan
-#    - cross-build-linux
-#    - cifuzz
+    - cross-build-linux
+    - cifuzz
     if: always()
 
     steps:
