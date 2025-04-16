@@ -38,7 +38,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build CPython installer
       # run: .\Tools\msi\build.bat --doc -x64
-      run: .\Tools\msi\buildrelease.bat -x64 --doc -o .\PCbuild\amd64\outputs
+      run: .\Tools\msi\buildrelease.bat -x64 -D -o .\PCbuild\amd64\outputs
     # 这是添加的内容
     - name: Zip amd64 folder
       shell: pwsh # 使用PowerShell打包
@@ -62,6 +62,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: python-fb.zip
-        asset_name: python-fb.zip
+        asset_path: python-msi.zip
+        asset_name: python-msi.zip
         asset_content_type: application/zip # ZIP文件类型
