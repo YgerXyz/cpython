@@ -4,26 +4,24 @@ on:
   push:
     branches:
     - master
+    - 3.10
     - 3.9
     - 3.8
     - 3.7
     paths:
     - 'Tools/msi/**'
-    - 'Lib/ensurepip/**'
+    - '.github/workflows/build_msi.yml'
   pull_request:
     branches:
     - master
+    - 3.10
     - 3.9
     - 3.8
     - 3.7
     paths:
     - 'Tools/msi/**'
-    - 'Lib/ensurepip/**'
-permissions:
-  contents: read
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+    - '.github/workflows/build_msi.yml'
+
 
 jobs:
   build_win_amd64:
