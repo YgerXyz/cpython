@@ -20,14 +20,15 @@ on:
     - 'Tools/msi/**'
     - 'Lib/ensurepip/**'
 
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
-  build_win32:
-    name: 'Windows (x86) Installer'
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build CPython installer
-      run: .\Tools\msi\build.bat -x86
 
   build_win_amd64:
     name: 'Windows (x64) Installer'
@@ -35,4 +36,31 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build CPython installer
-      run: .\Tools\msi\build.bat -x64
+      run: .\Tools\msi\buildrelease.bat -x64
+
+    # 这是添加的内容
+    - name: Zip amd64 folder
+      shell: pwsh # 使用PowerShell打包
+      run: |
+        Compress-Archive -Path .\PCbuild\amd64 -DestinationPath python-3.9.zip
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1 # 使用官方Action创建发布
+      env:
+        GITHUB_TOKEN: ${{ secrets.MY_TOKEN }} # 主仓库token
+      with:
+        tag_name: Python_39 # 使用提取的标签名称
+        release_name: Python_39 # 发布名称
+        draft: false # 非草稿模式
+        prerelease: false # 非预发布
+
+    - name: Upload ZIP Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: python-3.9.zip
+        asset_name: python-3.9.zip
+        asset_content_type: application/zip # ZIP文件类型
