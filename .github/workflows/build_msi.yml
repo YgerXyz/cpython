@@ -12,6 +12,7 @@ on:
     - '3.7'
     paths:
     - 'Tools/msi/**'
+    - '.github/workflows/build_msi.yml'
   pull_request:
     branches:
     - 'main'
