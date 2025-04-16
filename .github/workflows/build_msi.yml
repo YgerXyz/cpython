@@ -36,9 +36,15 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'  # 例如 '3.8', '3.9', '3.10' 等
+    - name: Install Mercurial via pip
+      run: pip install -U mercurial sphinx
     - name: Build CPython installer
       # run: .\Tools\msi\build.bat --doc -x64
-      run: .\Tools\msi\buildrelease.bat -x64 -D -o .\PCbuild\amd64\outputs
+      run: .\Tools\msi\buildrelease.bat -x64
     # 这是添加的内容
     - name: Zip amd64 folder
       shell: pwsh # 使用PowerShell打包
